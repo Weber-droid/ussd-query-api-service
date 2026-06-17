@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ussd-query-api-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ussd
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        # Recommended indexes for query performance:
+        # CREATE INDEX idx_cdr_record_date ON call_detail_records (RECORD_DATE);
+        # CREATE INDEX idx_cdr_msisdn ON call_detail_records (MSISDN);
+        # CREATE INDEX idx_cdr_imsi ON call_detail_records (IMSI);
+        # CREATE INDEX idx_cdr_record_date_msisdn ON call_detail_records (RECORD_DATE, MSISDN);
+        # CREATE INDEX idx_cdr_record_date_imsi ON call_detail_records (RECORD_DATE, IMSI);
+
+server:
+  port: 8080
