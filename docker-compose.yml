@@ -1,0 +1,73 @@
+# =============================================================================
+# Application 2: USSD Query API Service — Local Infrastructure
+# =============================================================================
+#
+# Start PostgreSQL:
+#   docker compose up -d
+#
+# Stop (data persists in the pgdata volume):
+#   docker compose down
+#
+# Stop and remove persisted data:
+#   docker compose down -v
+#
+# -----------------------------------------------------------------------------
+# Spring Boot datasource routing (app running on the HOST)
+# -----------------------------------------------------------------------------
+#
+# application.yml (default):
+#   spring.datasource.url: jdbc:postgresql://localhost:5432/ussd
+#
+# Export credentials before starting the app:
+#   export DB_USERNAME=postgres
+#   export DB_PASSWORD=localpassword
+#   mvn spring-boot:run
+#
+# One-liner:
+#   DB_USERNAME=postgres DB_PASSWORD=localpassword mvn spring-boot:run
+#
+# -----------------------------------------------------------------------------
+# Spring Boot datasource routing (app running INSIDE Docker — future use)
+# -----------------------------------------------------------------------------
+#
+# When the API service is containerized on the same Compose network, use the
+# service hostname instead of localhost:
+#   spring.datasource.url: jdbc:postgresql://postgres:5432/ussd
+#
+# -----------------------------------------------------------------------------
+# Database bootstrap (first-time setup)
+# -----------------------------------------------------------------------------
+#
+# After the container is healthy, apply schema and seed data from the host:
+#   docker compose up -d
+#   PGPASSWORD=localpassword psql -h localhost -U postgres -d ussd -f scripts/seed-test-data.sql
+#
+# Optional: auto-run init scripts on first container start by uncommenting the
+# docker-entrypoint-initdb.d volume mount in the postgres service below.
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ussd-query-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ussd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localpassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Uncomment to auto-apply SQL on first database initialization only:
+      # - ./scripts/docker-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ussd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  pgdata:
+    name: ussd-query-pgdata
