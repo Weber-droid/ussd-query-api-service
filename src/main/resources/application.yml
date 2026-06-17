@@ -13,6 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        globally_quoted_identifiers: true
         # Recommended indexes for query performance:
         # CREATE INDEX idx_cdr_record_date ON call_detail_records (RECORD_DATE);
         # CREATE INDEX idx_cdr_msisdn ON call_detail_records (MSISDN);
