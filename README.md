@@ -1,1 +1,0 @@
-# ussd-query-api-service
