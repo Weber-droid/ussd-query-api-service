@@ -1,10 +1,12 @@
 spring:
   application:
     name: ussd-query-api-service
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://localhost:5432/ussd
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ussd}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:localpassword}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
