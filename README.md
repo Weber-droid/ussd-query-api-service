@@ -140,14 +140,15 @@ cd ussd-query-api-service
 git checkout feature/ussd-query-logic
 ```
 
-Export database credentials as environment variables (never commit secrets):
+Create a local `.env` from the example (never commit `.env`):
 
 ```bash
-export DB_USERNAME=your_username
-export DB_PASSWORD=your_password
+cp .env.example .env
 ```
 
-> Optional: create a local `application-local.yml` (gitignored) to override defaults for development.
+Edit `.env` if your database host, name, or credentials differ. The same file is used by `docker-compose.yml` and the Spring app.
+
+> Optional: create a local `application-local.yml` (gitignored) to override other settings for development.
 
 ### 2. Build the Application
 
@@ -163,13 +164,26 @@ To run the full quality gate suite (Checkstyle, tests, SpotBugs):
 
 ### 3. Run the Application
 
-**Option A — Spring Boot Maven plugin (development):**
+**Option A — Docker Compose (Postgres + API together):**
+
+```bash
+cp .env.example .env   # first time only
+docker compose up -d --build
+```
+
+Starts PostgreSQL and the API. Schema and seed data load automatically on **first** database init (empty volume). API: **`http://localhost:8080`**.
+
+> If port `5432` is already in use on the host, set `DB_PORT=5433` in `.env` before `docker compose up`.
+
+**Option B — Spring Boot Maven plugin (API on host, DB separate):**
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-**Option B — Executable JAR (production-like):**
+Use when developing with hot reload. Requires Postgres running (`docker compose up -d postgres` or local install) and manual schema/seed (see [Database Setup](#database-setup)).
+
+**Option C — Executable JAR (production-like):**
 
 ```bash
 java -jar target/ussd-query-api-service-0.0.1-SNAPSHOT.jar

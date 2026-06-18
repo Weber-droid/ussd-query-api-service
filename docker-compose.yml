@@ -1,27 +1,43 @@
-# =============================================================================
-# Application 2: USSD Query API Service — Local Infrastructure
-# =============================================================================
 services:
   postgres:
     image: postgres:15-alpine
     container_name: ussd-query-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: ussd
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: localpassword
+      POSTGRES_DB: ${DB_NAME:-ussd}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-localpassword}
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Uncomment to auto-apply SQL on first database initialization only:
-      # - ./scripts/docker-init:/docker-entrypoint-initdb.d:ro
+      # Runs only on first database initialization (empty volume):
+      - ./scripts/docker-init/01-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./scripts/seed-test-data.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ussd"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-ussd}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ussd-query-api
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-ussd}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-localpassword}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   pgdata:
