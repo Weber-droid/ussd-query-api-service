@@ -5,5 +5,8 @@ target/
 .project
 .settings/
 .env
-application-local.yml
-application-local.properties
+.env.*
+!.env.example
+**/application-local.yml
+**/application-local.properties
+!**/application-local.yml.example
