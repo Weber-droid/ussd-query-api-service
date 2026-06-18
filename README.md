@@ -7,6 +7,15 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-blue?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-red?style=flat-square&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](.github/workflows/ci-cd.yml)
+[![API Tests](https://img.shields.io/badge/API%20Tests-TEST.md-blue?style=flat-square)](TEST.md)
+
+---
+
+## API Testing
+
+**Full integration test guide with verified request/response pairs:** [**TEST.md**](TEST.md)
+
+Covers all four filter permutations (date only, date+MSISDN, date+IMSI, date+MSISDN+IMSI), empty-result cases, and validation errors — mapped to real data from `scripts/seed-test-data.sql`.
 
 ---
 
@@ -170,13 +179,17 @@ The service starts on **`http://localhost:8080`** by default.
 
 ### 4. Verify Health
 
+See **[TEST.md](TEST.md)** for complete request/response examples against seed data.
+
+Quick smoke test:
+
 ```bash
 curl -s -o /dev/null -w "%{http_code}" \
   -X POST http://localhost:8080/api/v1/ussd/query \
   -H "Content-Type: application/json" \
   -d '{
-    "record_date_start": "2023-08-18 10:30:00",
-    "record_date_end": "2023-08-18 10:31:00"
+    "record_date_start": "2023-08-18 10:00:00",
+    "record_date_end": "2023-08-18 10:01:00"
   }'
 ```
 
